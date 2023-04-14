@@ -2,7 +2,7 @@ CREATE SCHEMA IF NOT EXISTS content;
 
 CREATE TABLE IF NOT EXISTS content.film_work (
     id uuid PRIMARY KEY,
-    title TEXT NOT NULL,
+    title TEXT UNIQUE NOT NULL,
     description TEXT,
     creation_date DATE,
     rating FLOAT,
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS content.film_work (
 
 CREATE TABLE IF NOT EXISTS content.genre (
     id uuid PRIMARY KEY,
-    name TEXT NOT NULL,
+    name TEXT UNIQUE NOT NULL,
     description TEXT,
     created timestamp with time zone,
     modified timestamp with time zone
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS content.genre (
 
 CREATE TABLE IF NOT EXISTS content.person (
     id uuid PRIMARY KEY,
-    full_name TEXT NOT NULL,
+    full_name TEXT UNIQUE NOT NULL,
     created timestamp with time zone,
     modified timestamp with time zone
 );
