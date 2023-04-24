@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from movies.mixins import TimeStampedMixin, UUIDMixin
 
 
-class Genre(models.Model):
+class Genre(TimeStampedMixin, UUIDMixin):
 
     name = models.CharField(_('name'), unique=True, max_length=255)
     description = models.TextField(_('description'), blank=True)
@@ -24,12 +24,12 @@ class Filmwork(TimeStampedMixin, UUIDMixin):
         MOVIE = 'movie', _('movie')
         TV_SHOW = 'tv_show', _('tv_show')
 
-    title = models.TextField(_('title'), unique=True)
+    title = models.TextField(_('title'))
     description = models.TextField(_('description'), blank=True)
     creation_date = models.DateField(_('created_date'))
     rating = models.FloatField(_('rating'), blank=True,
                                validators=[MinValueValidator(0), MaxValueValidator(100)])
-    type_film = models.CharField(_('type_film'), max_length=7, choices=TypeFilm.choices)
+    type = models.CharField(_('type_film'), max_length=7, choices=TypeFilm.choices)
     genres = models.ManyToManyField(Genre, through='GenreFilmwork')
 
     def __str__(self):

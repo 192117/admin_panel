@@ -2,7 +2,7 @@ CREATE SCHEMA IF NOT EXISTS content;
 
 CREATE TABLE IF NOT EXISTS content.film_work (
     id uuid PRIMARY KEY,
-    title TEXT UNIQUE NOT NULL,
+    title TEXT NOT NULL,
     description TEXT,
     creation_date DATE,
     rating FLOAT,
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS content.genre_film_work (
 );
 
 
-CREATE UNIQUE INDEX film_work_person_idx ON content.person_film_work(film_work_id, person_id);
+CREATE INDEX film_work_person_idx ON content.person_film_work(film_work_id, person_id);
 
 CREATE INDEX film_work_creation_date_idx ON content.film_work(creation_date, rating);
 
