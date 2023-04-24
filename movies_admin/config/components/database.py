@@ -11,3 +11,6 @@ DATABASES = {
         'OPTIONS': {'options': '-c search_path=public,content'},
     },
 }
+
+
+PATH_SQLITE = os.environ.get('PATH_SQLITE')
