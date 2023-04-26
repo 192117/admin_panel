@@ -1,9 +1,11 @@
-import sqlite3
+import logging
 import os
+import sqlite3
+
 import psycopg2
+from dotenv import load_dotenv
 from psycopg2.extensions import connection as _connection
 from psycopg2.extras import DictCursor
-from dotenv import load_dotenv
 
 from sqlite_to_postgres.loader_and_saver import PostgresSaver, SQLiteLoader
 from sqlite_to_postgres.utils_sql import TABLES
@@ -14,8 +16,9 @@ def load_from_sqlite(connection: sqlite3.Connection, pg_conn: _connection, table
     postgres_saver = PostgresSaver(pg_conn)
     sqlite_loader = SQLiteLoader(connection)
     for table in tables_from_sqlite:
-        data = sqlite_loader.load_movies(table)
-        postgres_saver.save_all_data(data, table)
+        values_from_sqlite = sqlite_loader.load_movies(table)
+        dataclasses_values = sqlite_loader.values_to_dataclass(values_from_sqlite, table)
+        postgres_saver.save_all_data(dataclasses_values, table)
 
 
 if __name__ == '__main__':
@@ -29,13 +32,14 @@ if __name__ == '__main__':
         'port': os.getenv('DB_PORT'),
     }
     try:
-        with sqlite3.connect('db.sqlite') as sqlite_conn, psycopg2.connect(**dsl, cursor_factory=DictCursor) as pg_conn:
+        with sqlite3.connect(os.getenv('ABS_PATH_SQLITE')) as sqlite_conn, \
+                psycopg2.connect(**dsl, cursor_factory=DictCursor) as pg_conn:
             load_from_sqlite(sqlite_conn, pg_conn, TABLES)
     except (sqlite3.OperationalError, sqlite3.ProgrammingError) as error:
-        print('Ошибка при выполнении операции в SQLite: ', error)
+        logging.error(f'Ошибка при выполнении операции в SQLite: {error}')
     except sqlite3.Error as error:
-        print('Ошибка при работе с SQLite: ', error)
+        logging.error(f'Ошибка при работе с SQLite: {error}')
     except (psycopg2.OperationalError, psycopg2.ProgrammingError) as error:
-        print('Ошибка при выполнении операции в PostgreSQL: ', error)
+        logging.error(f'Ошибка при выполнении операции в PostgreSQL: {error}')
     except psycopg2.Error as error:
-        print('Ошибка при работе с PostgreSQL: ', error)
+        logging.error(f'Ошибка при работе с PostgreSQL: {error}')

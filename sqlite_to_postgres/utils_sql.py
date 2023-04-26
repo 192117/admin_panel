@@ -36,4 +36,19 @@ DATACLASSES_DB = {
     'person_film_work': PersonFilmwork,
 }
 
+TEST_SQLite = {
+    'film_work': 'SELECT id, title, description, rating, "type", created_at, updated_at FROM film_work ORDER BY id;',
+    'genre': 'SELECT id, "name", description, created_at, updated_at FROM genre ORDER BY id;',
+    'person': 'SELECT id, full_name, created_at, updated_at FROM person ORDER BY id;',
+    'genre_film_work': 'SELECT id, film_work_id, genre_id, created_at FROM genre_film_work ORDER BY id;',
+    'person_film_work': 'SELECT id, film_work_id, person_id, "role", created_at FROM person_film_work ORDER BY id;',
+}
+TEST_PostgreSQL = {
+    'film_work': 'SELECT id, title, description, rating, "type", created, modified FROM film_work ORDER BY id;',
+    'genre': 'SELECT id, "name", description, created, modified FROM genre ORDER BY id;',
+    'person': 'SELECT id, full_name, created, modified FROM person ORDER BY id;',
+    'genre_film_work': 'SELECT id, film_work_id, genre_id, created FROM genre_film_work ORDER BY id;',
+    'person_film_work': 'SELECT id, film_work_id, person_id, "role", created FROM person_film_work ORDER BY id;',
+}
+
 SIZE = 100
