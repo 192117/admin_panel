@@ -1,4 +1,4 @@
-from sqlite_to_postgres.dataclasses_for_db import Filmwork, Genre, GenreFilmwork, Person, PersonFilmwork
+from dataclasses_for_db import Filmwork, Genre, GenreFilmwork, Person, PersonFilmwork
 
 FROM_TABLES = {
     'film_work': 'SELECT id, title, description, creation_date, rating, "type", created_at, updated_at FROM film_work;',

@@ -12,6 +12,8 @@ psycopg2-binary = "^2.9.6"
 django = "^4.2"
 python-dotenv = "^1.0.0"
 django-split-settings = "^1.2.0"
+gunicorn = "^20.1.0"
+whitenoise = "^6.4.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -34,6 +36,7 @@ flake8-pytest-style = "^1.7.2"
 flake8-quotes = "^3.3.2"
 flake8-string-format = "^0.3.0"
 flake8-variables-names = "^0.0.5"
+ipython = "^8.13.1"
 
 [build-system]
 requires = ["poetry-core"]

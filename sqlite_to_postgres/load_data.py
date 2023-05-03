@@ -4,11 +4,10 @@ import sqlite3
 
 import psycopg2
 from dotenv import load_dotenv
+from loader_and_saver import PostgresSaver, SQLiteLoader
 from psycopg2.extensions import connection as _connection
 from psycopg2.extras import DictCursor
-
-from sqlite_to_postgres.loader_and_saver import PostgresSaver, SQLiteLoader
-from sqlite_to_postgres.utils_sql import TABLES
+from utils_sql import TABLES
 
 
 def load_from_sqlite(connection: sqlite3.Connection, pg_conn: _connection, tables_from_sqlite: list):
@@ -22,14 +21,15 @@ def load_from_sqlite(connection: sqlite3.Connection, pg_conn: _connection, table
 
 
 if __name__ == '__main__':
-    env_path = '../movies_admin/config/.env'
+    env_path = './movies_admin/config/.env'
     load_dotenv(env_path)
     dsl = {
-        'dbname': os.getenv('DB_NAME'),
-        'user': os.getenv('DB_USER'),
-        'password': os.getenv('DB_PASSWORD'),
-        'host': os.getenv('DB_HOST'),
-        'port': os.getenv('DB_PORT'),
+        'dbname': os.getenv('POSTGRES_DB'),
+        'user': os.getenv('POSTGRES_USER'),
+        'password': os.getenv('POSTGRES_PASSWORD'),
+        'host': os.getenv('POSTGRES_HOST'),
+        'port': os.getenv('POSTGRES_PORT'),
+        'options': '-c search_path=public,content',
     }
     try:
         with sqlite3.connect(os.getenv('ABS_PATH_SQLITE')) as sqlite_conn, \
