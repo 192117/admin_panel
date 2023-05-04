@@ -17,7 +17,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-  backend:
+  service:
     build: .
     container_name: movies_backend
     depends_on:
@@ -29,13 +29,24 @@ services:
       && python ./movies_admin/manage.py migrate movies --fake
       && python ./movies_admin/manage.py migrate
       && python ./sqlite_to_postgres/load_data.py
-      && python ./movies_admin/manage.py runserver 0.0.0.0:8000"
-    ports:
-      - '8010:8000'
+      && gunicorn -b 0.0.0.0:8000 --chdir /app/movies_admin config.wsgi:application"
+    expose:
+      - '8000'
     volumes:
-      - static_value:/code/static/
-      - media_value:/code/media/
+      - static_value:/app/movies_admin/staticfiles/
+      - media_value:/app/movies_admin/mediafiles/
       - ./movies_admin/config/.env.docker:/app/movies_admin/config/.env
+  nginx:
+    image: nginx:latest
+    container_name: 'nginx_movies'
+    volumes:
+      - ./movies_admin/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_value:/var/html/staticfiles
+      - media_value:/var/html/mediafiles
+    depends_on:
+      - service
+    ports:
+      - '8010:80'
 
 
 volumes:
