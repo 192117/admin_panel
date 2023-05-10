@@ -116,3 +116,5 @@ cython_debug/
 
 
 .DS_Store
+example_openapi.yaml
+example_api_postman_collection.json

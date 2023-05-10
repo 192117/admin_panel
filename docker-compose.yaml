@@ -46,7 +46,7 @@ services:
     depends_on:
       - service
     ports:
-      - '8010:80'
+      - '8000:80'
 
 
 volumes:
