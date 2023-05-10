@@ -2,7 +2,7 @@ import sqlite3
 from dataclasses import dataclass
 from typing import List
 
-from sqlite_to_postgres.utils_sql import DATACLASSES_DB, FROM_TABLES, SIZE, TO_TABLES
+from utils_sql import DATACLASSES_DB, FROM_TABLES, SIZE, TO_TABLES
 
 
 class PostgresSaver:

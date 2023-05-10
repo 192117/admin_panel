@@ -1,0 +1,55 @@
+version: '3.9'
+
+services:
+  db:
+    restart: always
+    image: postgres:14.7-alpine
+    container_name: movies_db
+    env_file:
+      - ./movies_admin/config/.env.docker
+    expose:
+      - '5432'
+    volumes:
+      - ./schema_design/movies_database.ddl:/docker-entrypoint-initdb.d/movies_database.sql
+      - postgres_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d movies_database"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  service:
+    build: .
+    container_name: movies_backend
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      bash -c "python ./movies_admin/manage.py collectstatic --noinput
+      && python ./movies_admin/manage.py makemigrations
+      && python ./movies_admin/manage.py migrate movies --fake
+      && python ./movies_admin/manage.py migrate
+      && python ./sqlite_to_postgres/load_data.py
+      && gunicorn -b 0.0.0.0:8000 --chdir /app/movies_admin config.wsgi:application"
+    expose:
+      - '8000'
+    volumes:
+      - static_value:/app/movies_admin/staticfiles/
+      - media_value:/app/movies_admin/mediafiles/
+      - ./movies_admin/config/.env.docker:/app/movies_admin/config/.env
+  nginx:
+    image: nginx:latest
+    container_name: 'nginx_movies'
+    volumes:
+      - ./movies_admin/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_value:/var/html/staticfiles
+      - media_value:/var/html/mediafiles
+    depends_on:
+      - service
+    ports:
+      - '8000:80'
+
+
+volumes:
+  postgres_data:
+  static_value:
+  media_value:
