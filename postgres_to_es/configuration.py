@@ -3,7 +3,7 @@ import os
 
 from dotenv import load_dotenv
 
-env_path = '../movies_admin/config/.env'
+env_path = './movies_admin/config/.env'
 load_dotenv(os.path.abspath(env_path))
 
 

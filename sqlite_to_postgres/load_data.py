@@ -21,7 +21,7 @@ def load_from_sqlite(connection: sqlite3.Connection, pg_conn: _connection, table
 
 
 if __name__ == '__main__':
-    env_path = '../movies_admin/config/.env'
+    env_path = './movies_admin/config/.env'
     load_dotenv(env_path)
     dsl = {
         'dbname': os.getenv('POSTGRES_DB'),
