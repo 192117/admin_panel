@@ -1,9 +1,18 @@
+from psycopg2.extensions import connection as _connection
 from state_etl import JsonFileStorage
 
 
 class PostgresExtract:
+    """Class for extracting data from PostgreSQL database. """
 
-    def __init__(self, connection, time, size, state: JsonFileStorage):
+    def __init__(self, connection: _connection, time: str, size: int, state: JsonFileStorage):
+        """Initializes a PostgresExtract instance.
+
+        :param connection: The PostgreSQL connection object.
+        :param time: The timestamp used for data extraction.
+        :param size: The size of data to extract in each iteration.
+        :param state: The state storage object.
+        """
         self.connection = connection
         self.cursor = self.connection.cursor()
         self.time = time
@@ -11,6 +20,7 @@ class PostgresExtract:
         self.state = state
 
     def producer(self):
+        """Extracts persons data from PostgreSQL and saves it to the state storage."""
         offset = 0
         persons = []
         state_values = self.state.retrieve_state()
@@ -28,6 +38,7 @@ class PostgresExtract:
             self.state.save_state({'stage': 'producer', 'values': persons})
 
     def enricher(self):
+        """Enriches the data with film_works and saves it to the state storage."""
         offset = 0
         film_works = []
         state_values = self.state.retrieve_state()
@@ -47,6 +58,10 @@ class PostgresExtract:
             self.state.save_state({'stage': 'enricher', 'values': film_works})
 
     def merger(self, offset: int = 0):
+        """Merges the data and saves it to the state storage.
+
+        :param offset: The offset value for data extraction.
+        """
         state_values = self.state.retrieve_state()
         if state_values['stage'] == 'enricher':
             film_works = ', '.join(f'\'{str(film_work)}\'' for film_work in state_values['values'])

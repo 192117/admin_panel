@@ -17,6 +17,12 @@ from tranform_data import Transform
 
 @backoff.on_exception(backoff.expo, (ConnectionError, ConnectionTimeout, psycopg2.Error), max_tries=10)
 def psql_to_es(pg_conn: _connection, es: elasticsearch.Elasticsearch, size):
+    """Transfer data from PostgreSQL to Elasticsearch.
+
+    :param pg_conn: The PostgreSQL connection object.
+    :param es: The Elasticsearch client.
+    :param size: The size of data to transfer in each iteration.
+    """
     if not os.path.exists('data_for_es.json'):
         data_for_es = open('data_for_es.json', 'w')
         data_for_es.close()
