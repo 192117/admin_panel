@@ -1,4 +1,4 @@
 [flake8]
 max-line-length = 120
 exclude = .venv, migrations, tests.py, manage.py
-ignore = CCE001, A003, VNE003
+ignore = CCE001, A003, VNE003, CCR001, Q003
