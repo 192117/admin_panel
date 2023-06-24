@@ -42,7 +42,7 @@ def psql_to_es(pg_conn: _connection, es: elasticsearch.Elasticsearch, size):
         es=es,
         state=state,
         index_name=os.environ.get('ELASTIC_SCHEME'),
-        path_schema=os.path.abspath('schema.json'),
+        path_schema=os.path.abspath('movies_schema.json'),
         path_data_to_es=os.path.abspath('data_for_es.json'),
     )
     if len(state.retrieve_state()) == 0:
@@ -54,6 +54,7 @@ def psql_to_es(pg_conn: _connection, es: elasticsearch.Elasticsearch, size):
         if stage_values['stage'] == 'merger':
             if len(stage_values['values']) == 0:
                 logger.info('Data loading process finished in ES!')
+                state.save_state({'stage': ''})
                 break
         postgres_extract.producer()
         postgres_extract.enricher()
