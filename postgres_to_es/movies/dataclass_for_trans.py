@@ -34,7 +34,7 @@ class Movies:
             self.writers = []
 
 
-dataclass_atributes = [
+movie_atributes = [
     'id', 'imdb_rating', 'genre', 'title', 'description', 'director', 'actors_names', 'writers_names', 'actors',
     'writers',
 ]

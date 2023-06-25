@@ -1,5 +1,6 @@
 from psycopg2.extensions import connection as _connection
-from state_etl import JsonFileStorage
+
+from postgres_to_es.state_etl import JsonFileStorage
 
 
 class PostgresExtract:
@@ -66,7 +67,7 @@ class PostgresExtract:
         if state_values['stage'] == 'enricher':
             film_works = ', '.join(f'\'{str(film_work)}\'' for film_work in state_values['values'])
         elif state_values['stage'] == 'elastic':
-            film_works = state_values['film_works']
+            film_works = state_values['other_values']
         self.cursor.execute(f'SELECT fw.id as id, fw.rating as imdb_rating, '
                             f'array_agg(distinct g.name) as genre, fw.title as title, '
                             f'fw.description as description, '
@@ -88,4 +89,7 @@ class PostgresExtract:
                             f'WHERE fw.id IN ({film_works}) '
                             f'GROUP BY fw.id LIMIT {self.size} OFFSET {offset};')
         values = self.cursor.fetchall()
-        self.state.save_state({'stage': 'merger', 'values': values, 'film_works': film_works})
+        if values:
+            self.state.save_state({'stage': 'merger', 'values': values, 'other_values': film_works})
+        else:
+            self.state.save_state({'stage': 'merger', 'values': values})
