@@ -1,6 +1,5 @@
 from psycopg2.extensions import connection as _connection
-
-from postgres_to_es.state_etl import JsonFileStorage
+from state_etl import JsonFileStorage
 
 
 class PostgresExtract:
@@ -92,4 +91,30 @@ class PostgresExtract:
         if values:
             self.state.save_state({'stage': 'merger', 'values': values, 'other_values': film_works})
         else:
+            self.state.save_state({'stage': 'merger', 'values': values})
+
+    def merger_genres(self, offset: int = 0):
+        """Merges the data and saves it to the state storage.
+
+        :param offset: The offset value for data extraction.
+        """
+        state_values = self.state.retrieve_state()
+        if state_values['stage'] == '' or state_values['stage'] == 'elastic':
+            self.cursor.execute(f'SELECT id, name, description FROM content.genre '
+                                f'WHERE modified <= to_timestamp(\'{self.time}\', \'YYYY-MM-DD HH24:MI:SS\') '
+                                f'ORDER BY modified LIMIT {self.size} OFFSET {offset};')
+            values = self.cursor.fetchall()
+            self.state.save_state({'stage': 'merger', 'values': values})
+
+    def merger_persons(self, offset: int = 0):
+        """Merges the data and saves it to the state storage.
+
+        :param offset: The offset value for data extraction.
+        """
+        state_values = self.state.retrieve_state()
+        if state_values['stage'] == '' or state_values['stage'] == 'elastic':
+            self.cursor.execute(f'SELECT id, full_name FROM content.person '
+                                f'WHERE modified <= to_timestamp(\'{self.time}\', \'YYYY-MM-DD HH24:MI:SS\') '
+                                f'ORDER BY modified LIMIT {self.size} OFFSET {offset};')
+            values = self.cursor.fetchall()
             self.state.save_state({'stage': 'merger', 'values': values})

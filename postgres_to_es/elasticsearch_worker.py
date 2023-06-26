@@ -1,6 +1,6 @@
 import json
 
-from postgres_to_es.configuration import logger
+from configuration import logger
 
 
 class ElasticWorker:

@@ -34,6 +34,33 @@ class Movies:
             self.writers = []
 
 
+@dataclass
+class Persons:
+
+    id: uuid.UUID
+    full_name: str = ''
+
+
+@dataclass
+class Genres:
+
+    id: uuid.UUID
+    name: str = ''
+    description: Optional[str] = None
+
+    def __post_init__(self):
+        if self.description is None:
+            self.description = ''
+
+
+genre_atributes = [
+    'id', 'name', 'description',
+]
+
+person_atributes = [
+    'id', 'full_name',
+]
+
 movie_atributes = [
     'id', 'imdb_rating', 'genre', 'title', 'description', 'director', 'actors_names', 'writers_names', 'actors',
     'writers',

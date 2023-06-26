@@ -2,8 +2,8 @@ import json
 from dataclasses import dataclass
 from typing import Dict, List
 
-from postgres_to_es.configuration import dataclasses_atribute, dataclasses_dict
-from postgres_to_es.state_etl import JsonFileStorage
+from configuration import dataclasses_atribute, dataclasses_dict
+from state_etl import JsonFileStorage
 
 
 class Transform:

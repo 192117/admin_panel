@@ -1,13 +1,11 @@
 import logging
 import os
 
+from dataclass_for_trans import Genres, Movies, Persons, genre_atributes, movie_atributes, person_atributes
 from dotenv import load_dotenv
-from postgres_to_es.genres.dataclass_for_trans import Genres, genre_atributes
-from postgres_to_es.movies.dataclass_for_trans import Movies, movie_atributes
-from postgres_to_es.persons.dataclass_for_trans import Persons, person_atributes
 
-# env_path = '../../movies_admin/config/.env'  # for local run
-env_path = '././movies_admin/config/.env'  # for docker run
+# env_path = '../movies_admin/config/.env'  # for local run
+env_path = './movies_admin/config/.env'  # for docker run
 load_dotenv(os.path.abspath(env_path))
 
 
