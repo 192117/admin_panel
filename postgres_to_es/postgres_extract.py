@@ -66,7 +66,7 @@ class PostgresExtract:
         if state_values['stage'] == 'enricher':
             film_works = ', '.join(f'\'{str(film_work)}\'' for film_work in state_values['values'])
         elif state_values['stage'] == 'elastic':
-            film_works = state_values['film_works']
+            film_works = state_values['other_values']
         self.cursor.execute(f'SELECT fw.id as id, fw.rating as imdb_rating, '
                             f'array_agg(distinct g.name) as genre, fw.title as title, '
                             f'fw.description as description, '
@@ -79,7 +79,8 @@ class PostgresExtract:
                             f'json_agg(distinct jsonb_build_object(\'id\', p.id, \'name\', p.full_name)) '
                             f'filter ( where pfw.role = \'actor\' ) as actors,'
                             f'json_agg(distinct jsonb_build_object(\'id\', p.id, \'name\', p.full_name)) '
-                            f'filter ( where pfw.role = \'writer\' ) as writers '
+                            f'filter ( where pfw.role = \'writer\' ) as writers, '
+                            f'json_agg(distinct jsonb_build_object(\'id\', g.id, \'name\', g.name)) as genres_list '
                             f'FROM content.film_work fw '
                             f'LEFT JOIN content.person_film_work pfw ON pfw.film_work_id = fw.id '
                             f'LEFT JOIN content.person p ON p.id = pfw.person_id '
@@ -88,4 +89,38 @@ class PostgresExtract:
                             f'WHERE fw.id IN ({film_works}) '
                             f'GROUP BY fw.id LIMIT {self.size} OFFSET {offset};')
         values = self.cursor.fetchall()
-        self.state.save_state({'stage': 'merger', 'values': values, 'film_works': film_works})
+        if values:
+            self.state.save_state({'stage': 'merger', 'values': values, 'other_values': film_works})
+        else:
+            self.state.save_state({'stage': 'merger', 'values': values})
+
+    def merger_genres(self, offset: int = 0):
+        """Merges the data and saves it to the state storage.
+
+        :param offset: The offset value for data extraction.
+        """
+        state_values = self.state.retrieve_state()
+        if state_values['stage'] == '' or state_values['stage'] == 'elastic':
+            self.cursor.execute(f'SELECT id, name, description FROM content.genre '
+                                f'WHERE modified <= to_timestamp(\'{self.time}\', \'YYYY-MM-DD HH24:MI:SS\') '
+                                f'ORDER BY modified LIMIT {self.size} OFFSET {offset};')
+            values = self.cursor.fetchall()
+            self.state.save_state({'stage': 'merger', 'values': values})
+
+    def merger_persons(self, offset: int = 0):
+        """Merges the data and saves it to the state storage.
+
+        :param offset: The offset value for data extraction.
+        """
+        state_values = self.state.retrieve_state()
+        if state_values['stage'] == '' or state_values['stage'] == 'elastic':
+            self.cursor.execute(f'SELECT p.id AS id, p.full_name AS full_name, '
+                                f'json_agg(json_build_object(\'id\', pfw.film_work_id, \'roles\', pfw.roles)) AS films '
+                                f'FROM content.person p '
+                                f' LEFT JOIN (SELECT pfw.person_id, pfw.film_work_id, '
+                                f'array_agg(DISTINCT pfw.role) AS roles FROM content.person_film_work pfw '
+                                f'GROUP BY pfw.person_id, pfw.film_work_id) pfw ON pfw.person_id = p.id '
+                                f'WHERE p.modified <= to_timestamp(\'{self.time}\', \'YYYY-MM-DD HH24:MI:SS\') '
+                                f'GROUP BY p.id LIMIT {self.size} OFFSET {offset};')
+            values = self.cursor.fetchall()
+            self.state.save_state({'stage': 'merger', 'values': values})

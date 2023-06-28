@@ -60,18 +60,46 @@ services:
       interval: 30s
       timeout: 30s
       retries: 5
-  etl_proccess:
+  etl_movies:
     build:
       context: .
       dockerfile: Dockerfile-ETL
-    container_name: etl_proccess
+    container_name: etl_movies
     depends_on:
       db:
         condition: service_healthy
       elastic:
         condition: service_healthy
     command: >
-      bash -c "python load_psql_to_es.py"
+      bash -c "python load_movies_to_es.py"
+    volumes:
+      - ./movies_admin/config/.env.docker:/etl/movies_admin/config/.env
+  etl_genres:
+    build:
+      context: .
+      dockerfile: Dockerfile-ETL
+    container_name: etl_genres
+    depends_on:
+      db:
+        condition: service_healthy
+      elastic:
+        condition: service_healthy
+    command: >
+      bash -c "python load_genres_to_es.py"
+    volumes:
+      - ./movies_admin/config/.env.docker:/etl/movies_admin/config/.env
+  etl_persons:
+    build:
+      context: .
+      dockerfile: Dockerfile-ETL
+    container_name: etl_persons
+    depends_on:
+      db:
+        condition: service_healthy
+      elastic:
+        condition: service_healthy
+    command: >
+      bash -c "python load_persons_to_es.py"
     volumes:
       - ./movies_admin/config/.env.docker:/etl/movies_admin/config/.env
 

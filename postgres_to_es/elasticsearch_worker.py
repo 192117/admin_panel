@@ -27,7 +27,7 @@ class ElasticWorker:
             with open(self.path_schema, 'r') as file:
                 schema = json.load(file)
                 self.es.indices.create(index=self.index_name, body=schema)
-                logger.info('Created index in ES!')
+                logger.info(f'Created {self.index_name} index in ES!')
 
     def load_data(self):
         """Loads the transformed data to Elasticsearch."""
@@ -37,6 +37,7 @@ class ElasticWorker:
                 data = json.load(file)
                 self.es.bulk(index=self.index_name, body=data)
                 logger.info('Data successfully uploaded to ES!')
-            self.state.save_state(
-                {'stage': 'elastic', 'values': state_values['values'], 'film_works': state_values['film_works']},
-            )
+            try:
+                self.state.save_state({'stage': 'elastic', 'other_values': state_values['other_values']})
+            except KeyError:
+                self.state.save_state({'stage': 'elastic', 'values': []})
