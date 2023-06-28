@@ -79,7 +79,8 @@ class PostgresExtract:
                             f'json_agg(distinct jsonb_build_object(\'id\', p.id, \'name\', p.full_name)) '
                             f'filter ( where pfw.role = \'actor\' ) as actors,'
                             f'json_agg(distinct jsonb_build_object(\'id\', p.id, \'name\', p.full_name)) '
-                            f'filter ( where pfw.role = \'writer\' ) as writers '
+                            f'filter ( where pfw.role = \'writer\' ) as writers, '
+                            f'json_agg(distinct jsonb_build_object(\'id\', g.id, \'name\', g.name)) as genres_list '
                             f'FROM content.film_work fw '
                             f'LEFT JOIN content.person_film_work pfw ON pfw.film_work_id = fw.id '
                             f'LEFT JOIN content.person p ON p.id = pfw.person_id '
@@ -113,8 +114,13 @@ class PostgresExtract:
         """
         state_values = self.state.retrieve_state()
         if state_values['stage'] == '' or state_values['stage'] == 'elastic':
-            self.cursor.execute(f'SELECT id, full_name FROM content.person '
-                                f'WHERE modified <= to_timestamp(\'{self.time}\', \'YYYY-MM-DD HH24:MI:SS\') '
-                                f'ORDER BY modified LIMIT {self.size} OFFSET {offset};')
+            self.cursor.execute(f'SELECT p.id AS id, p.full_name AS full_name, '
+                                f'json_agg(json_build_object(\'id\', pfw.film_work_id, \'roles\', pfw.roles)) AS films '
+                                f'FROM content.person p '
+                                f' LEFT JOIN (SELECT pfw.person_id, pfw.film_work_id, '
+                                f'array_agg(DISTINCT pfw.role) AS roles FROM content.person_film_work pfw '
+                                f'GROUP BY pfw.person_id, pfw.film_work_id) pfw ON pfw.person_id = p.id '
+                                f'WHERE p.modified <= to_timestamp(\'{self.time}\', \'YYYY-MM-DD HH24:MI:SS\') '
+                                f'GROUP BY p.id LIMIT {self.size} OFFSET {offset};')
             values = self.cursor.fetchall()
             self.state.save_state({'stage': 'merger', 'values': values})

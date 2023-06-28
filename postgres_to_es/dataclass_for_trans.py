@@ -16,6 +16,7 @@ class Movies:
     writers_names: Optional[List] = None
     actors: Optional[List] = None
     writers: Optional[List] = None
+    genres_list: Optional[List] = None
 
     def __post_init__(self):
         if self.imdb_rating is None:
@@ -32,6 +33,8 @@ class Movies:
             self.actors = []
         if self.writers is None:
             self.writers = []
+        if self.genres_list is None:
+            self.genres_list = []
 
 
 @dataclass
@@ -39,6 +42,11 @@ class Persons:
 
     id: uuid.UUID
     full_name: str = ''
+    films: Optional[List] = None
+
+    def __post_init__(self):
+        if self.films is None:
+            self.films = []
 
 
 @dataclass
@@ -58,10 +66,10 @@ genre_atributes = [
 ]
 
 person_atributes = [
-    'id', 'full_name',
+    'id', 'full_name', 'films',
 ]
 
 movie_atributes = [
     'id', 'imdb_rating', 'genre', 'title', 'description', 'director', 'actors_names', 'writers_names', 'actors',
-    'writers',
+    'writers', 'genres_list',
 ]

@@ -101,6 +101,18 @@
             "analyzer": "ru_en"
           }
         }
+      },
+      "genres_list": {
+        "type": "nested",
+        "dynamic": "strict",
+        "properties": {
+          "id": {
+            "type": "keyword"
+          },
+          "name": {
+            "type": "keyword"
+          }
+        }
       }
     }
   }
