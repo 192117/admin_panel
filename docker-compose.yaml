@@ -17,6 +17,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - db
   service:
     build: .
     container_name: movies_backend
@@ -36,6 +38,8 @@ services:
       - static_value:/app/movies_admin/staticfiles/
       - media_value:/app/movies_admin/mediafiles/
       - ./movies_admin/config/.env.docker:/app/movies_admin/config/.env
+    networks:
+      - service
   nginx:
     image: nginx:latest
     container_name: nginx_movies
@@ -47,6 +51,8 @@ services:
       - service
     ports:
       - '8000:80'
+    networks:
+      - nginx
   elastic:
     image:  docker.elastic.co/elasticsearch/elasticsearch:8.6.2
     container_name: elastic_movies
@@ -54,12 +60,14 @@ services:
       - discovery.type=single-node
       - xpack.security.enabled=false
     ports:
-      - '9200:9200'
+      - '9203:9200'
     healthcheck:
       test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
       interval: 30s
       timeout: 30s
       retries: 5
+    networks:
+      - elastic
   etl_movies:
     build:
       context: .
@@ -74,6 +82,8 @@ services:
       bash -c "python load_movies_to_es.py"
     volumes:
       - ./movies_admin/config/.env.docker:/etl/movies_admin/config/.env
+    networks:
+      - etl_movies
   etl_genres:
     build:
       context: .
@@ -88,6 +98,8 @@ services:
       bash -c "python load_genres_to_es.py"
     volumes:
       - ./movies_admin/config/.env.docker:/etl/movies_admin/config/.env
+    networks:
+      - etl_genres
   etl_persons:
     build:
       context: .
@@ -102,7 +114,24 @@ services:
       bash -c "python load_persons_to_es.py"
     volumes:
       - ./movies_admin/config/.env.docker:/etl/movies_admin/config/.env
+    networks:
+      - etl_persons
 
+networks:
+  db:
+    name: networks_movie
+  service:
+    name: networks_movie
+  nginx:
+    name: networks_movie
+  elastic:
+    name: networks_movie
+  etl_movies:
+    name: networks_movie
+  etl_genres:
+    name: networks_movie
+  etl_persons:
+    name: networks_movie
 
 volumes:
   postgres_data:
