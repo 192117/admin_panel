@@ -95,7 +95,7 @@ class PostgresExtract:
             self.state.save_state({'stage': 'merger', 'values': values})
 
     def merger_genres(self, offset: int = 0):
-        """Merges the data and saves it to the state storage.
+        """Extracts genres data from PostgreSQL and saves it to the state storage.
 
         :param offset: The offset value for data extraction.
         """
@@ -108,7 +108,7 @@ class PostgresExtract:
             self.state.save_state({'stage': 'merger', 'values': values})
 
     def merger_persons(self, offset: int = 0):
-        """Merges the data and saves it to the state storage.
+        """Extracts persons data from PostgreSQL and saves it to the state storage.
 
         :param offset: The offset value for data extraction.
         """
